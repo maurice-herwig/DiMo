@@ -11,4 +11,5 @@ Executable dimo
   BuildDepends:   ocaml-sat-solvers
   MainIs:         dimo.ml
   CompiledObject: best
+  ByteOpt:        -thread
   NativeOpt:      -thread

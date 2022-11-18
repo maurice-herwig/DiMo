@@ -338,49 +338,38 @@ let rec run_output_language props currentProps params solver program =
         let rec boolean_evaluation = function
             (* Recursively auxiliary function to evaluate the expression.
             params: bexpr: Expression to evaluate
-            return: boolean: The evaluation of the expression.
+            return: bool option: The evaluation of the expression.
             *)
             | BAnd(phi, psi) ->
                 begin
                     let e1 = (boolean_evaluation phi) in
                     let e2 = (boolean_evaluation psi) in
                     match (e1, e2) with
-                        | (_, -1)   -> -1
-                        | (-1, _)   -> -1
-                        | (0, 1)    -> 0
-                        | (1, 0)    -> 0
-                        | (0, 0)    -> 0
-                        | (1, 1)    -> 1
-                        | _         -> -1
+                        | Some x, Some y -> Some (x && y)
+                        | None, _ -> None
+                        | _, None -> None
                 end
             | BOr(phi, psi) ->
                 begin
                     let e1 = (boolean_evaluation phi) in
                     let e2 = (boolean_evaluation psi) in
                     match (e1, e2) with
-                        | (_, -1)   -> -1
-                        | (-1, _)   -> -1
-                        | (0, 1)    -> 1
-                        | (1, 0)    -> 1
-                        | (0, 0)    -> 0
-                        | (1, 1)    -> 1
-                        | _         -> -1
+                        | Some x, Some y -> Some (x && y)
+                        | None, _ -> None
+                        | _, None -> None
                 end
             | BNeg(phi) ->
                 begin
                     match (boolean_evaluation phi) with
-                        | -1    -> -1
-                        | 1     -> 0
-                        | 0     -> 1
-                        | _     -> -1
+                        | Some x -> Some (not x)
+                        | None -> None
                 end
             | HasModel ->
                 begin
                     match solver#get_solve_result with
-                        | SolveUnsatisfiable -> 0
-                        | SolveFailure _ -> -1
-                        | SolveSatisfiable -> 1
-                        | _ -> 1
+                        | SolveUnsatisfiable -> Some(false)
+                        | SolveSatisfiable -> Some(true)
+                        | SolveFailure _ -> None
                 end
             | Prop(x,ts) ->
                 begin
@@ -396,22 +385,17 @@ let rec run_output_language props currentProps params solver program =
                     if not (StringSet.mem prop props) then failwith "Proposition is not defined.";
 
                     (*Return the value of the variable*)
-                    solver#get_variable (prop,ps)
+                    solver#get_variable_bool_opt (prop,ps)
 
                 end
-            | BComp(term1, compOper, term2) ->
-                begin
-                    let cmpRes = compOper (intTerm_to_int params term1) (intTerm_to_int params term2) in
-                    if cmpRes then 1 else 0
-                end
+            | BComp(term1, compOper, term2) -> Some(compOper (intTerm_to_int params term1) (intTerm_to_int params term2))
             in
         let evaluation = boolean_evaluation phi in
         match evaluation with
-            (*1:= True  0:= False  -1:=Undefined*)
-            | 1  -> run_output_language props currentProps params solver prog_if
-            | 0  -> run_output_language props currentProps params solver prog_else
-            | -1 -> run_output_language props currentProps params solver prog_undefined
-            | _  -> failwith "Error by the evaluation of the boolean expression" in
+            | Some true -> run_output_language props currentProps params solver prog_if
+            | Some false -> run_output_language props currentProps params solver prog_else
+            | None -> run_output_language props currentProps params solver prog_undefined
+        in
 
     (*begin main code of the run_output_language function*)
     match program with

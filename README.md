@@ -10,26 +10,24 @@ Installation
 2. Issue the following commands in order to obtain all necessary packages and the right OCaml compiler.
 
 ```
-opam switch 4.07.0
+opam switch 4.08.0
 eval `opam config env` 
 opam install ocamlbuild ocamlfind ocaml-sat-solvers
 ```
 
-3. To build a byte-code version of the discrete modelling tool, issue
+3. To build a native-code version of the discrete modelling tool, issue the following commands.
 
 ```
-make
+ocaml setup.ml -configure
+ocaml setup.ml -build         
 ```
 
-Optionally, use
+Optional to build a byte-code version of the discrete modelling tool, issue the following commands.
 
 ```
-make native
+ocaml setup.ml -configure --override is_native false
+ocaml setup.ml -build    
 ```
-
-to build a native version.
-
-
 
 Running
 =======

@@ -15,6 +15,13 @@ eval `opam config env`
 opam install ocamlbuild ocamlfind ocaml-sat-solvers
 ```
 
+If you get on Ubuntu the error message  `the following action failed build conf-gmp 4 `. Run the following
+lines of code and try to install ocaml-sat-solvers agan. 
+```
+sudo apt-get update -y
+sudo apt-get install -y libgmp-ocaml-dev
+```
+
 3. To build a native-code version of the discrete modelling tool, issue the following commands.
 
 ```

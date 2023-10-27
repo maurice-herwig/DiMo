@@ -1,0 +1,12 @@
+_build/
+examples/
+.idea/
+setup.ml
+setup.data
+setup.log
+myocamlbuild.ml
+myocamlbuild.ml.bak
+setup.ml.bak
+dimo.native
+dimo.byte
+build.log
